@@ -1,27 +1,17 @@
 """Punct principal de intrare pentru proiectul TSP."""
 
-""" RULARE------------------
-# Doar backtracking (cerinta A)
-py src/main.py --backtracking date/orase.txt
-
-# Doar hill climbing (cerinta B)
-py src/main.py --hill-climbing date/orase.txt
-
-# Comparatie intre A si B
-py src/main.py --compare date/orase.txt
-"""
-
 import sys
 import os
 import argparse
 import time
 
-# Adauga calea pentru importuri
+# Adaugă calea pentru importuri
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
 from utils.io_utils import citeste_matrice, salveaza_rezultat
 from backtracking import rezolva_tsp_backtracking
 from hill_climbing_tsp import rezolva_tsp_hill_climbing
+from utils.performance import ruleaza_experiment_cu_3_grafice
 
 
 def main():
@@ -29,32 +19,40 @@ def main():
     
     group = parser.add_mutually_exclusive_group(required=True)
     group.add_argument('--backtracking', metavar='FISIER', 
-                       help='Ruleaza backtracking pe fisier')
+                       help='Rulează backtracking pe fișier')
     group.add_argument('--hill-climbing', metavar='FISIER', 
-                       help='Ruleaza hill climbing pe fisier')
+                       help='Rulează hill climbing pe fișier')
     group.add_argument('--compare', metavar='FISIER', 
-                       help='Compara ambii algoritmi')
+                       help='Compară ambii algoritmi')
+    group.add_argument('--experiment', action='store_true', 
+                       help='Rulează experimentul cu 3 grafice')
     
     parser.add_argument('--restarturi', type=int, default=10,
-                        help='Numar reporniri pentru hill climbing')
+                        help='Număr reporniri pentru hill climbing')
     parser.add_argument('--output', '-o', metavar='FISIER',
-                        help='Salveaza rezultatul')
+                        help='Salvează rezultatul')
     
     args = parser.parse_args()
     
-    # Citeste fisierul de intrare
+    # Experiment cu 3 grafice
+    if args.experiment:
+        print(" Rulează experimentul cu 3 grafice...")
+        ruleaza_experiment_cu_3_grafice()
+        return
+    
+    # Citește fișierul de intrare
     fisier = args.backtracking or args.hill_climbing or args.compare
     try:
         n, matrice = citeste_matrice(fisier)
-        print(f"\n Fisier: {fisier}")
-        print(f" Numar orase: {n}")
+        print(f"\n Fișier: {fisier}")
+        print(f" Număr orașe: {n}")
     except Exception as e:
         print(f" Eroare: {e}")
         sys.exit(1)
     
     # Backtracking
     if args.backtracking:
-        print("\n Ruleaza BACKTRACKING...")
+        print("\n Rulează BACKTRACKING...")
         start = time.perf_counter()
         traseu, cost = rezolva_tsp_backtracking(n, matrice)
         durata = time.perf_counter() - start
@@ -65,11 +63,11 @@ def main():
         
         if args.output:
             salveaza_rezultat(args.output, n, traseu, cost, durata, "backtracking")
-            print(f" Salvat in: {args.output}")
+            print(f" Salvat în: {args.output}")
     
     # Hill Climbing
     elif args.hill_climbing:
-        print(f"\n Ruleaza HILL CLIMBING ({args.restarturi} reporniri)...")
+        print(f"\n Rulează HILL CLIMBING ({args.restarturi} reporniri)...")
         start = time.perf_counter()
         traseu, cost = rezolva_tsp_hill_climbing(
             n, matrice, restarturi=args.restarturi
@@ -83,11 +81,11 @@ def main():
         if args.output:
             salveaza_rezultat(args.output, n, traseu, cost, durata, 
                               f"hill_climbing_{args.restarturi}")
-            print(f" Salvat in: {args.output}")
+            print(f" Salvat în: {args.output}")
     
-    # Comparatie
+    # Comparație
     elif args.compare:
-        print("\n COMPARATIE ALGORITMI")
+        print("\n COMPARAȚIE ALGORITMI")
         
         # Backtracking
         start = time.perf_counter()
@@ -111,20 +109,20 @@ def main():
         print(f"  Cost: {cost_hc}")
         print(f"  Timp: {durata_hc:.6f}s")
         
-        # Diferenta
+        # Diferență
         if cost_bt > 0:
             diff = ((cost_hc - cost_bt) / cost_bt) * 100
-            print(f"\n Diferenta cost: {diff:+.2f}%")
+            print(f"\n Diferență cost: {diff:+.2f}%")
             print(f" Raport timp: {durata_bt/durata_hc:.2f}x")
         
         if args.output:
             with open(args.output, 'w') as f:
-                f.write("COMPARATIE TSP\n")
+                f.write("COMPARAȚIE TSP\n")
                 f.write("="*40 + "\n\n")
                 f.write(f"Backtracking: {durata_bt:.6f}s, cost={cost_bt}\n")
                 f.write(f"Hill Climbing: {durata_hc:.6f}s, cost={cost_hc}\n")
-                f.write(f"Diferenta: {diff:+.2f}%\n")
-            print(f"\n Salvat in: {args.output}")
+                f.write(f"Diferență: {diff:+.2f}%\n")
+            print(f"\n Salvat în: {args.output}")
 
 
 if __name__ == "__main__":
