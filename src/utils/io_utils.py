@@ -1,4 +1,4 @@
-"""Utilități pentru citirea și scrierea fișierelor."""
+"""citirea și scrierea fișierelor"""
 
 import os
 from typing import List, Tuple
